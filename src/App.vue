@@ -1,9 +1,9 @@
 <template>
-  <div id="app">
+  <div id="app" :style="{ backgroundImage: 'url(' + photoUrl + '&w=2000)' }">
     <div id="main">
-      <img :src='myImage'>
+      <!-- <img :src='photoUrl'> -->
 
-      <p>{{ myImage }}</p>
+      <!-- <p>{{ myImage }}</p> -->
       <h1>{{ msg }}</h1>
       <input v-model="query" type="text" id="search" placeholder="Search Photos">
       <button @click="searchPhotos" id="search-submit">Search</button>
@@ -13,9 +13,10 @@
       <h3>{{ hours }}:{{ minutes }}:{{ seconds }}</h3>
       <p>Good {{ timeOfDay }}</p>
       </div>
-      <h5>{{ timeTest }}</h5>
-      <h2>Essential Links</h2>
-      <ul>
+      <!-- <h5>{{ timeTest }}</h5> -->
+      <div class="gcse-search"></div>
+      <!-- <h2>Essential Links</h2>
+       <ul>
         <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
         <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
         <li><a href="https://chat.vuejs.org" target="_blank">Community Chat</a></li>
@@ -27,7 +28,7 @@
         <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
         <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
         <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-      </ul>
+      </ul> -->
     </div><!-- / #main -->
   </div><!-- / #app -->
 </template>
@@ -41,13 +42,14 @@ export default {
       msg: 'Welcome to Your Vue.js App',
       clientId: 'V8_Yy2IBu90rfZ77cYFLM2MFLS8h09Szdcv6XHaO19c',
       query: 'trees',
-      photoUrl: 'asdf',
+      photoUrl: 'https://images.unsplash.com/photo-1477346611705-65d1883cee1e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
       date: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric' , second: 'numeric' }),
       timeTest: '',
       hours: '',
       minutes: '',
       seconds: '',
       timeOfDay: null,
+      bgContainer: document.querySelector('#app')
     }
   },
   computed: {
@@ -61,19 +63,24 @@ export default {
   methods: {
     searchPhotos: function() {
       console.log('clicked search photos');
-      fetch('https://api.unsplash.com/search/photos/?client_id=' + this.clientId + '&query=' + this.query)
+      fetch('https://api.unsplash.com/search/photos/?client_id=' + this.clientId + '&query=' + this.query + '&orientation=landscape&per_page=30')
         .then(data => data.json())
         .then(data => {
-           console.log(data);
+          let r = Math.floor(Math.random() * 30);
+          console.log("%% r", r, typeof(r));
+
+           // console.log(data);
+           this.photoUrl = data.results[r].urls.full;
+           console.log(this.photoUrl); 
            data.results.forEach(function(item) {
-            let result = item.urls.full;
-            console.log(result);
-            
+             // let result = item.urls.full;
+             // console.log("result: ", result);
+           
 
             
            })
         });
-        console.log(this.photoUrl);
+        // console.log(this.photoUrl);
     },
     getTime: function() {
       const date = new Date();
@@ -90,12 +97,36 @@ export default {
       const date = new Date();
       if (date.getHours() < 12) {
         this.timeOfDay = 'morning';
-      } else if (date.getHours() > 12 && date.getHours() < 18) {
+      } else if (date.getHours() > 12 && date.getHours() < 18 ) {
         this.timeOfDay = 'afternoon';
       } else {
         this.timeOfDay = 'evening';
       }
-    }
+      setTimeout(this.checkTimeOfDay, 1000)
+    },
+    bgPhoto() {
+      // var el = document.querySelector('#app')
+      this.bgContainer.classList.add('test');
+      // el.style.backgroundImage = 'url(this.photoUrl)';
+      console.log('$$$ bgPhoto', this.photoUrl);
+    },
+    loadGoogleSearch() {
+      // if (window.google-search) {
+      //   // The script is already loaded, so just reload the embeds
+      //   window.google-search.widgets.load();
+      // } else if (!document.getElementById('google-search-widgets')) {
+      //   const embed = document.createElement('script');
+      //   embed.id = 'google-search-widgets'
+      //   embed.src = 'https://cse.google.com/cse.js?cx=a93997be9c4611ba4';
+      //   document.body.appendChild(embed);
+      //   // And when the script loads, the embeds will load too
+      //
+      const embed = document.createElement('script');
+      embed.id = 'google-search-widgets'
+      embed.src = 'https://cse.google.com/cse.js?cx=a93997be9c4611ba4';
+      document.body.appendChild(embed);
+      //}
+    },
   },
   created: function () {
     // setInterval(function() {
@@ -108,8 +139,20 @@ export default {
     // console.log('a is: ' + this.msg)
     this.getTime();
     this.checkTimeOfDay();
-  },
+    // this.searchPhotos();
+    // this.bgPhoto();
+    window.addEventListener('keydown', (e) => {
+      if (e.key == 'Enter') {
+        console.log('pressed enter');
+        this.searchPhotos(e);
+      }
+    });
 
+    this.loadGoogleSearch();
+  },
+  mounted: function() {
+    console.log("!!! mounted");
+  }
 }
 
 </script>
@@ -130,7 +173,15 @@ body {
   //background-image: url(https://images.unsplash.com/photo-1441974231531-c6227db76b6e?crop=entropy&cs=srgb&fm=jpg&ixid=MnwyMTE1MTV8MHwxfHNlYXJjaHwzfHx0cmVlc3xlbnwwfHx8fDE2MTU3ODI2OTI&ixlib=rb-1.2.1&q=85);
   background-image: url(https://images.unsplash.com/photo-1477346611705-65d1883cee1e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80);
   // background-image: url(https://api.unsplash.com/search/photos/?client_id=V8_Yy2IBu90rfZ77cYFLM2MFLS8h09Szdcv6XHaO19c&query=trees);
+  // background-image: url(this.photoUrl);
   height: 100vh;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.test {
+  margin-top:5px;
 }
 
 #main {
@@ -166,5 +217,24 @@ a {
     margin-top: 0;
     font-weight: bold;
   }
+}
+
+.gsc-control-cse {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+#___gcse_0 {
+  margin: 0 auto;
+  width: 45%;
+}
+
+.gsc-search-button-v2 {
+  padding-top: 8px !important;
+  padding-bottom: 9px !important;
+}
+
+.gsc-thumbnail-inside {
+  text-align: left;
 }
 </style>
