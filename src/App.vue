@@ -5,30 +5,49 @@
 
       <!-- <p>{{ myImage }}</p> -->
       <h1>{{ msg }}</h1>
-      <input v-model="query" type="text" id="search" placeholder="Search Photos">
-      <button @click="searchPhotos" id="search-submit">Search</button>
-      <p>{{ query }}</p>
+      <div class="ui input">
+        <input v-model="query" type="text" id="search" placeholder="Background Photo">
+      </div>
+      <button @click="searchPhotos" id="search-submit" class="ui primary button">Search</button>
+      <!-- <p>{{ query }}</p> -->
       <!-- <h3 class="date">{{ date }}</h3> -->
       <div class="date">
-      <h3>{{ hours }}:{{ minutes }}:{{ seconds }}</h3>
+        <div class="clock">
+          <h3 v-if="showSeconds">{{ hours }}:{{ minutes }}:{{ seconds }}</h3>
+          <h3 v-if="!showSeconds">{{ hours }}:{{ minutes }}</h3>
+          <div class="ui toggle checkbox">
+            <input type="checkbox" v-model="showSeconds" name="show-seconds">
+            <label for="show-seconds">Seconds</label>
+          </div>
+        </div>
       <p>Good {{ timeOfDay }}</p>
       </div>
       <!-- <h5>{{ timeTest }}</h5> -->
       <div class="gcse-search"></div>
-      <!-- <h2>Essential Links</h2>
-       <ul>
-        <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-        <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-        <li><a href="https://chat.vuejs.org" target="_blank">Community Chat</a></li>
-        <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
-      </ul>
-      <h2>Ecosystem</h2>
-      <ul>
-        <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-        <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-        <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-        <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-      </ul> -->
+      <div id="favs-wrapper" @mouseover="showEditFavsUi = true" @mouseleave="showEditFavsUi = false">
+        <div id="favs">
+          <ul>
+            <li v-for="fav in favs" :key="fav.id" class="fav-item">
+              <img :src="fav.image + fav.site ">
+            </li>
+          </ul>
+          <div id="edit-favs" v-if="showEditFavs">
+            <p>Edit Favs</p>
+            <form>
+              <ul>
+                <li v-for="fav in favs" :key="fav.id">
+                  <label>{{ fav.id }}</label>
+                  <input type="text" v-model="fav.site" />
+                </li>
+              </ul>
+              <button>Done</button>
+            </form>
+          </div>
+          <transition name="fade">
+            <div @click="editFavs" class="edit-favs" v-if="showEditFavsUi">...</div>
+          </transition>
+        </div>
+      </div>
     </div><!-- / #main -->
   </div><!-- / #app -->
 </template>
@@ -41,7 +60,7 @@ export default {
     return {
       msg: 'Welcome to Your Vue.js App',
       clientId: 'V8_Yy2IBu90rfZ77cYFLM2MFLS8h09Szdcv6XHaO19c',
-      query: 'trees',
+      query: 'mountains',
       photoUrl: 'https://images.unsplash.com/photo-1477346611705-65d1883cee1e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
       date: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric' , second: 'numeric' }),
       timeTest: '',
@@ -49,7 +68,36 @@ export default {
       minutes: '',
       seconds: '',
       timeOfDay: null,
-      bgContainer: document.querySelector('#app')
+      bgContainer: document.querySelector('#app'),
+      showEditFavs: false,
+      showEditFavsUi: false,
+      showSeconds: true,
+      favs: {
+        one: {
+          id: 1,
+          name: 'youtube.com',
+          site: 'youtube.com',
+          image: '//logo.clearbit.com/'
+        },
+        two: {
+          id: 2,
+          name: 'spotify.com',
+          site: 'spotify.com',
+          image: '//logo.clearbit.com/'
+        },
+        three: {
+          id: 3,
+          name: 'discogs.com',
+          site: 'discogs.com',
+          image: '//logo.clearbit.com/'
+        },
+        four: {
+          id: 4,
+          name: 'trello.com',
+          site: 'trello.com',
+          image: '//logo.clearbit.com/'
+        },
+      }
     }
   },
   computed: {
@@ -127,6 +175,12 @@ export default {
       document.body.appendChild(embed);
       //}
     },
+    editFavs() {
+      this.showEditFavs = !this.showEditFavs;
+    },
+    editFavsUi() {
+      this.showEditFavsUi = true;
+    }
   },
   created: function () {
     // setInterval(function() {
@@ -158,6 +212,9 @@ export default {
 </script>
 
 <style lang="scss">
+@mixin text-shadow {
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
 body {
   margin: 0;
 }
@@ -169,7 +226,9 @@ body {
   text-align: center;
   color: #fff;
   // padding-top: 60px;
-  background: #aaabef;
+  // background: #aaabef;
+  background: rgba(170,171,239,0.5);
+  // background: linear-gradient(180deg, rgba(170,171,239,1) 0%, rgba(170,171,239,1) 35%, rgba(243,243,255,1) 100%); 
   //background-image: url(https://images.unsplash.com/photo-1441974231531-c6227db76b6e?crop=entropy&cs=srgb&fm=jpg&ixid=MnwyMTE1MTV8MHwxfHNlYXJjaHwzfHx0cmVlc3xlbnwwfHx8fDE2MTU3ODI2OTI&ixlib=rb-1.2.1&q=85);
   background-image: url(https://images.unsplash.com/photo-1477346611705-65d1883cee1e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80);
   // background-image: url(https://api.unsplash.com/search/photos/?client_id=V8_Yy2IBu90rfZ77cYFLM2MFLS8h09Szdcv6XHaO19c&query=trees);
@@ -189,6 +248,7 @@ body {
 }
 
 h1, h2 {
+  @include text-shadow;
   font-weight: normal;
 }
 
@@ -208,13 +268,32 @@ a {
 }
 
 .date {
+  @include text-shadow;
+  margin: 50px 0;
   h3 {
     font-size: 8rem;
     margin-bottom: 0;
+    display: inline-block;
   }
   p {
     font-size: 4rem;
     margin-top: 0;
+    font-weight: bold;
+  }
+  .clock {
+    position: relative;
+    display: inline-block;
+  }
+  .ui.toggle.checkbox {
+    transform: scale(0.5);
+    position: absolute;
+    right: -10em;
+    bottom: 1.5em;
+  }
+  .ui.toggle.checkbox label,
+  .ui.toggle.checkbox input:checked~label  {
+    color: white !important;
+    font-size: 2em;
     font-weight: bold;
   }
 }
@@ -236,5 +315,39 @@ a {
 
 .gsc-thumbnail-inside {
   text-align: left;
+}
+#favs-wrapper {
+  padding: 0 3em 2em;
+  display: inline-block;
+}
+#favs {
+  display: inline-block;
+  position: relative
+}
+.fav-item, .fav-item img {
+  width: 64px;
+  height: 64px;
+}
+.edit-favs {
+  transition: 0.3s;
+  position: relative;
+  // right: 0;
+  top: -0.25em;
+  text-align: right;
+  line-height: 0;
+  cursor: pointer;
+  font-size: 2.5em;
+  font-weight: bold;
+  color: rgba(255,255,255,0.5);
+    &:hover {
+    color: rgba(255,255,255,1);
+    transition: 0.2s;
+  }
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .2s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>
