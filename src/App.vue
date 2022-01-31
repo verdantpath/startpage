@@ -1,15 +1,17 @@
 <template>
   <div id="app" :style="{ backgroundImage: 'url(' + photoUrl + '&w=2000)' }">
     <div id="main">
+      <div id="weather">
+        <h3>43 &deg;</h3>
+        <h4>Portland</h4>
+      </div>
       <!-- <img :src='photoUrl'> -->
 
       <!-- <p>{{ myImage }}</p> -->
       <h1>{{ msg }}</h1>
-      <div class="ui input">
-        <input v-model="query" type="text" id="search" placeholder="Background Photo">
-      </div>
-      <button @click="searchPhotos" id="search-submit" class="ui primary button">Search</button>
-      <!-- <p>{{ query }}</p> -->
+
+      <div class="gcse-search"></div>
+      
       <!-- <h3 class="date">{{ date }}</h3> -->
       <div class="date">
         <div class="clock">
@@ -23,12 +25,19 @@
       <p>Good {{ timeOfDay }}</p>
       </div>
       <!-- <h5>{{ timeTest }}</h5> -->
-      <div class="gcse-search"></div>
+      <div id="background-photo-search">
+        <div class="ui input">
+          <input v-model="query" type="text" id="search" placeholder="Background Photo">
+        </div>
+        <button @click="searchPhotos" id="search-submit" class="ui primary button">Search</button>
+        <p>Search to change the background image</p>
+      </div>
+      <!-- <p>Search to change the background image</p> -->
       <div id="favs-wrapper" @mouseover="showEditFavsUi = true" @mouseleave="showEditFavsUi = false">
         <div id="favs">
           <ul>
             <li v-for="fav in favs" :key="fav.id" class="fav-item">
-              <img :src="fav.image + fav.site ">
+              <a :href="'https://' + fav.site" target="_blank"><img :src="fav.image + fav.site "></a>
             </li>
           </ul>
           <div id="edit-favs" v-if="showEditFavs">
@@ -37,16 +46,19 @@
               <ul>
                 <li v-for="fav in favs" :key="fav.id">
                   <label>{{ fav.id }}</label>
-                  <input type="text" v-model="fav.site" />
+                  <input type="text" v-model="fav.editSite" />
                 </li>
               </ul>
-              <button>Done</button>
+              <button @click="updateFavs">Done</button>
             </form>
           </div>
           <transition name="fade">
             <div @click="editFavs" class="edit-favs" v-if="showEditFavsUi">...</div>
           </transition>
         </div>
+      </div>
+      <div id="quote">
+        <p>"It's not where you're from, it's where your at"</p>
       </div>
     </div><!-- / #main -->
   </div><!-- / #app -->
@@ -58,7 +70,7 @@ export default {
   name: 'app',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App',
+      msg: 'Welcome to Your Vue.js Start Page',
       clientId: 'V8_Yy2IBu90rfZ77cYFLM2MFLS8h09Szdcv6XHaO19c',
       query: 'mountains',
       photoUrl: 'https://images.unsplash.com/photo-1477346611705-65d1883cee1e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
@@ -71,32 +83,37 @@ export default {
       bgContainer: document.querySelector('#app'),
       showEditFavs: false,
       showEditFavsUi: false,
-      showSeconds: true,
+      showSeconds: false,
       favs: {
         one: {
           id: 1,
-          name: 'youtube.com',
+          editSite: 'youtube.com',
           site: 'youtube.com',
           image: '//logo.clearbit.com/'
         },
         two: {
           id: 2,
-          name: 'spotify.com',
+          editSite: 'spotify.com',
           site: 'spotify.com',
           image: '//logo.clearbit.com/'
         },
         three: {
           id: 3,
-          name: 'discogs.com',
+          editSite: 'discogs.com',
           site: 'discogs.com',
           image: '//logo.clearbit.com/'
         },
         four: {
           id: 4,
-          name: 'trello.com',
+          editSite: 'trello.com',
           site: 'trello.com',
           image: '//logo.clearbit.com/'
         },
+      },
+      weather: {
+        apiKey: process.env.VUE_APP_WEATHER_KEY,
+        city: 'Portland',
+        units: 'imperial',
       }
     }
   },
@@ -180,7 +197,36 @@ export default {
     },
     editFavsUi() {
       this.showEditFavsUi = true;
-    }
+    },
+    updateFavs(event) {
+      event.preventDefault;
+      // console.log(this.favs);
+      // this.favs.forEach(fav => {
+      //   fav.site = fav.editSite;
+      // });
+      // for(const fav in this.favs) {
+      //  fav.site = fav.editSite;
+      //  console.log(fav);
+      // }
+      this.favs.one.site = this.favs.one.editSite;
+      this.favs.two.site = this.favs.two.editSite;
+      this.favs.three.site = this.favs.three.editSite;
+      this.favs.four.site = this.favs.four.editSite;
+      
+      this.showEditFavs = false;
+    },
+    getWeather() {
+      let city = 'denver';
+      let apiKey = process.env.VUE_APP_WEATHER_KEY;
+      fetch("https://api.openweathermap.org/data/2.5/weather?q=" 
+        + this.weather.city + "&units=" 
+        + this.weather.units + "&appid=" 
+        + this.weather.apiKey)
+      .then(response => response.json())
+      .then(data => {
+        console.log(data.name, parseInt(data.main.temp))
+      });
+    },
   },
   created: function () {
     // setInterval(function() {
@@ -193,6 +239,7 @@ export default {
     // console.log('a is: ' + this.msg)
     this.getTime();
     this.checkTimeOfDay();
+    this.getWeather();
     // this.searchPhotos();
     // this.bgPhoto();
     window.addEventListener('keydown', (e) => {
@@ -244,7 +291,10 @@ body {
 }
 
 #main {
-  padding-top: 60px;
+  padding: 1.5em;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 h1, h2 {
@@ -316,9 +366,13 @@ a {
 .gsc-thumbnail-inside {
   text-align: left;
 }
+#background-photo-search {
+  margin-bottom: 3em;
+}
 #favs-wrapper {
   padding: 0 3em 2em;
   display: inline-block;
+  margin-bottom: auto;
 }
 #favs {
   display: inline-block;
@@ -349,5 +403,21 @@ a {
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
+}
+#weather {
+  text-align: right;
+  margin: 0 0 3em;
+  h3 {
+    margin: 0;
+    font-size: 2.25em;
+  }
+  h4 {
+    margin: 0;
+  }
+}
+#quote {
+  margin-top: auto;
+  font-size: 1.75em;
+  @include text-shadow;
 }
 </style>
