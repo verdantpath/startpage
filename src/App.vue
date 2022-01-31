@@ -405,6 +405,7 @@ a {
   opacity: 0;
 }
 #weather {
+  @include text-shadow;
   text-align: right;
   margin: 0 0 3em;
   h3 {
