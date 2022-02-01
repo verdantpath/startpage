@@ -253,6 +253,7 @@ export default {
   },
   mounted: function() {
     console.log("!!! mounted");
+    console.log("@@@", process.env);
   }
 }
 
