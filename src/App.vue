@@ -58,6 +58,7 @@
         </div>
       </div>
       <div id="quote">
+        <p>{{ secretTest }}</p>
         <p>"It's not where you're from, it's where your at"</p>
       </div>
     </div><!-- / #main -->
@@ -65,13 +66,15 @@
 </template>
 
 <script>
+import secure from './secure'
 
 export default {
   name: 'app',
   data () {
     return {
+      secretTest: secure.apiKeyTest,
       msg: 'Welcome to Your Vue.js Start Page',
-      clientId: 'V8_Yy2IBu90rfZ77cYFLM2MFLS8h09Szdcv6XHaO19c',
+      clientId: secure.unsplashApi,
       query: 'mountains',
       photoUrl: 'https://images.unsplash.com/photo-1477346611705-65d1883cee1e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
       date: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric' , second: 'numeric' }),
@@ -111,7 +114,7 @@ export default {
         },
       },
       weather: {
-        apiKey: process.env.VUE_APP_WEATHER_KEY,
+        apiKey: secure.openWeatherMapApi,
         city: 'Portland',
         units: 'imperial',
       }
@@ -145,7 +148,6 @@ export default {
             
            })
         });
-        // console.log(this.photoUrl);
     },
     getTime: function() {
       const date = new Date();
@@ -236,7 +238,9 @@ export default {
     // .then(response => response.json())
     // .then(data => console.log(data))
     
-    // console.log('a is: ' + this.msg)
+    // console.log('a is: ' + this.msg);
+    console.log(process.env.NODE_ENV);
+    console.log(process.env.VUE_APP_T);
     this.getTime();
     this.checkTimeOfDay();
     this.getWeather();
@@ -253,7 +257,6 @@ export default {
   },
   mounted: function() {
     console.log("!!! mounted");
-    console.log("@@@", process.env);
   }
 }
 
