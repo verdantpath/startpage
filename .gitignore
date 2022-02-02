@@ -1,6 +1,9 @@
 .DS_Store
 node_modules/
 dist/
+secure/
+config/
+src/bk-App.vue
 npm-debug.log
 yarn-error.log
 notes.txt
