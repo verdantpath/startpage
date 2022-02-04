@@ -2,8 +2,8 @@
   <div id="app" :style="{ backgroundImage: 'url(' + photoUrl + '&w=2000)' }">
     <div id="main">
       <div id="weather">
-        <h3>43 &deg;</h3>
-        <h4>Portland</h4>
+        <h3>{{ weather.current.temp }} &deg;</h3>
+        <h4>{{ weather.current.city }}</h4>
       </div>
       <!-- <img :src='photoUrl'> -->
 
@@ -24,7 +24,6 @@
         </div>
       <p>Good {{ timeOfDay }}</p>
       </div>
-      <!-- <h5>{{ timeTest }}</h5> -->
       <div id="background-photo-search">
         <div class="ui input">
           <input v-model="query" type="text" id="search" placeholder="Background Photo">
@@ -32,7 +31,6 @@
         <button @click="searchPhotos" id="search-submit" class="ui primary button">Search</button>
         <p>Search to change the background image</p>
       </div>
-      <!-- <p>Search to change the background image</p> -->
       <div id="favs-wrapper" @mouseover="showEditFavsUi = true" @mouseleave="showEditFavsUi = false">
         <div id="favs">
           <ul>
@@ -58,7 +56,7 @@
         </div>
       </div>
       <div id="quote">
-        <p>{{ secretTest }}</p>
+        <p>{{ secretTest }} : {{ weather.current.temp }} : </p>
         <p>"It's not where you're from, it's where your at"</p>
       </div>
     </div><!-- / #main -->
@@ -117,6 +115,10 @@ export default {
         apiKey: secure.openWeatherMapApi,
         city: 'Portland',
         units: 'imperial',
+        current: {
+          temp: '',
+          city: '',
+        }
       }
     }
   },
@@ -226,7 +228,9 @@ export default {
         + this.weather.apiKey)
       .then(response => response.json())
       .then(data => {
-        console.log(data.name, parseInt(data.main.temp))
+        console.log(data.name, parseInt(data.main.temp));
+        this.weather.current.temp = parseInt(data.main.temp);
+        this.weather.current.city = data.name;
       });
     },
   },
