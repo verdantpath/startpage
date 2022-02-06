@@ -2,8 +2,12 @@
   <div id="app" :style="{ backgroundImage: 'url(' + photoUrl + '&w=2000)' }">
     <div id="main">
       <div id="weather">
-        <h3>{{ weather.current.temp }} &deg;</h3>
-        <h4>{{ weather.current.city }}</h4>
+        <h3>{{ weather.temp }} &deg;</h3>
+        <h4 @click="editWeatherCity" v-if="!showEditWeatherCity">{{ weather.city }}</h4>
+        <div v-else class="ui input">
+          <input type="text" v-model="weather.city" />
+          <button @click="getWeather">Go</button>
+        </div>
       </div>
       <!-- <img :src='photoUrl'> -->
 
@@ -13,11 +17,11 @@
       <div class="gcse-search"></div>
       
       <!-- <h3 class="date">{{ date }}</h3> -->
-      <div class="date">
+      <div @mouseover="showSecondsToggle = true" @mouseleave="showSecondsToggle = false" class="date">
         <div class="clock">
           <h3 v-if="showSeconds">{{ hours }}:{{ minutes }}:{{ seconds }}</h3>
           <h3 v-if="!showSeconds">{{ hours }}:{{ minutes }}</h3>
-          <div class="ui toggle checkbox">
+          <div v-if="showSecondsToggle" class="ui toggle checkbox">
             <input type="checkbox" v-model="showSeconds" name="show-seconds">
             <label for="show-seconds">Seconds</label>
           </div>
@@ -27,8 +31,8 @@
       <div id="background-photo-search">
         <div class="ui input">
           <input v-model="query" type="text" id="search" placeholder="Background Photo">
+          <button @click="searchPhotos" id="search-submit" class="ui primary button">Search</button>
         </div>
-        <button @click="searchPhotos" id="search-submit" class="ui primary button">Search</button>
         <p>Search to change the background image</p>
       </div>
       <div id="favs-wrapper" @mouseover="showEditFavsUi = true" @mouseleave="showEditFavsUi = false">
@@ -43,8 +47,8 @@
             <form>
               <ul>
                 <li v-for="fav in favs" :key="fav.id">
-                  <label>{{ fav.id }}</label>
-                  <input type="text" v-model="fav.editSite" />
+                  <label>{{ fav.id }}</label><div class="ui input">
+                  <input type="text" v-model="fav.editSite" /></div>
                 </li>
               </ul>
               <button @click="updateFavs">Done</button>
@@ -56,8 +60,7 @@
         </div>
       </div>
       <div id="quote">
-        <p>{{ secretTest }} : {{ weather.current.temp }} : </p>
-        <p>"It's not where you're from, it's where your at"</p>
+        <p>"{{ quote.content }}" - {{ quote.author }}</p>
       </div>
     </div><!-- / #main -->
   </div><!-- / #app -->
@@ -85,6 +88,7 @@ export default {
       showEditFavs: false,
       showEditFavsUi: false,
       showSeconds: false,
+      showSecondsToggle: false,
       favs: {
         one: {
           id: 1,
@@ -115,11 +119,18 @@ export default {
         apiKey: secure.openWeatherMapApi,
         city: 'Portland',
         units: 'imperial',
-        current: {
-          temp: '',
-          city: '',
-        }
-      }
+        temp: null,
+        // current: {
+        //   temp: '',
+        //   city: '',
+        // }
+      },
+      showEditWeatherCity: false,
+      quote: {
+       content: '',
+       author: ''
+      },
+      darkMode: false,
     }
   },
   computed: {
@@ -128,6 +139,13 @@ export default {
     },
     myImageUrl: function() {
       console.log(myImage.urls.small)
+    },
+    checkDarkMode() {
+      if (this.darkMode = false) {
+        console.log("!@# false ", this.darkMode)
+      } else if (this.darkMode = true) {
+        console.log("!@# true ", this.darkMode);
+      }
     }
   },
   methods: {
@@ -161,6 +179,9 @@ export default {
     },
     checkSingleDigit: function(digit) {
       return ('0' + digit).slice(-2)
+    },
+    hoverShowSeconds() {
+      this.showSecondsToggle = true;
     },
     checkTimeOfDay: function() {
       const date = new Date();
@@ -220,8 +241,6 @@ export default {
       this.showEditFavs = false;
     },
     getWeather() {
-      let city = 'denver';
-      let apiKey = process.env.VUE_APP_WEATHER_KEY;
       fetch("https://api.openweathermap.org/data/2.5/weather?q=" 
         + this.weather.city + "&units=" 
         + this.weather.units + "&appid=" 
@@ -229,8 +248,24 @@ export default {
       .then(response => response.json())
       .then(data => {
         console.log(data.name, parseInt(data.main.temp));
-        this.weather.current.temp = parseInt(data.main.temp);
-        this.weather.current.city = data.name;
+        this.weather.temp = parseInt(data.main.temp);
+        this.weather.city = data.name;
+        this.showEditWeatherCity = false;
+      });
+    },
+    editWeatherCity() {
+      this.showEditWeatherCity = true;
+    },
+    getQuote() {
+      fetch("https://api.quotable.io/random")
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        this.quote.content = data.content;
+        this.quote.author = data.author;
+      })
+      .catch(err => {
+        console.error(err);
       });
     },
   },
@@ -248,6 +283,8 @@ export default {
     this.getTime();
     this.checkTimeOfDay();
     this.getWeather();
+    this.getQuote();
+    this.checkDarkMode();
     // this.searchPhotos();
     // this.bgPhoto();
     window.addEventListener('keydown', (e) => {
@@ -376,6 +413,9 @@ a {
 }
 #background-photo-search {
   margin-bottom: 3em;
+  button {
+    margin: 0 0 0 3px;
+  }
 }
 #favs-wrapper {
   padding: 0 3em 2em;
@@ -389,6 +429,17 @@ a {
 .fav-item, .fav-item img {
   width: 64px;
   height: 64px;
+}
+#edit-favs {
+  label {
+    margin-right: 0.125em;
+    font-size: 1.5em;
+    font-weight: bold;
+    @include text-shadow;
+  }
+  input {
+    padding: 0.125em;
+  }
 }
 .edit-favs {
   transition: 0.3s;
@@ -422,11 +473,12 @@ a {
   }
   h4 {
     margin: 0;
+    cursor: pointer;
   }
 }
 #quote {
   margin-top: auto;
-  font-size: 1.75em;
+  font-size: 1.25em;
   @include text-shadow;
 }
 </style>
