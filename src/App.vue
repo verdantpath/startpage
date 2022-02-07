@@ -1,6 +1,13 @@
 <template>
-  <div id="app" :style="{ backgroundImage: 'url(' + photoUrl + '&w=2000)' }">
+  <div id="app" :class="{ 'dark-mode': darkMode }" :style="{ backgroundImage: 'url(' + photoUrl + '&w=2000)' }">
     <div id="main">
+    <div id="theme">
+      <span>Light Mode</span>
+      <div class="ui toggle checkbox">
+        <input type="checkbox" v-model="darkMode" name="choose-theme">
+        <label for="choose-theme">Dark Mode</label>
+      </div>
+    </div>
       <div id="weather">
         <h3>{{ weather.temp }} &deg;</h3>
         <h4 @click="editWeatherCity" v-if="!showEditWeatherCity">{{ weather.city }}</h4>
@@ -31,7 +38,7 @@
       <div id="background-photo-search">
         <div class="ui input">
           <input v-model="query" type="text" id="search" placeholder="Background Photo">
-          <button @click="searchPhotos" id="search-submit" class="ui primary button">Search</button>
+          <button @click="searchPhotos" id="search-submit" class="ui primary button">Change Photo</button>
         </div>
         <p>Search to change the background image</p>
       </div>
@@ -92,8 +99,8 @@ export default {
       favs: {
         one: {
           id: 1,
-          editSite: 'youtube.com',
-          site: 'youtube.com',
+          editSite: 'stackoverflow.com',
+          site: 'stackoverflow.com',
           image: '//logo.clearbit.com/'
         },
         two: {
@@ -140,13 +147,7 @@ export default {
     myImageUrl: function() {
       console.log(myImage.urls.small)
     },
-    checkDarkMode() {
-      if (this.darkMode = false) {
-        console.log("!@# false ", this.darkMode)
-      } else if (this.darkMode = true) {
-        console.log("!@# true ", this.darkMode);
-      }
-    }
+    
   },
   methods: {
     searchPhotos: function() {
@@ -172,7 +173,7 @@ export default {
     getTime: function() {
       const date = new Date();
       this.timeTest = this.checkSingleDigit(date.getSeconds());
-      this.hours = date.getHours() < 12 ? date.getHours() : date.getHours() - 12;
+      this.hours = date.getHours() <= 12 ? date.getHours() : date.getHours() - 12;
       this.minutes = this.checkSingleDigit(date.getMinutes());
       this.seconds = this.checkSingleDigit(date.getSeconds());
       setTimeout(this.getTime, 1000);
@@ -267,6 +268,9 @@ export default {
       .catch(err => {
         console.error(err);
       });
+    },
+    checkDarkMode() {
+     console.log("%^&", this.darkMode);
     },
   },
   created: function () {
@@ -403,6 +407,8 @@ a {
   width: 45%;
 }
 
+
+
 .gsc-search-button-v2 {
   padding-top: 8px !important;
   padding-bottom: 9px !important;
@@ -474,6 +480,7 @@ a {
   h4 {
     margin: 0;
     cursor: pointer;
+    display: inline-block;
   }
 }
 #quote {
@@ -481,4 +488,51 @@ a {
   font-size: 1.25em;
   @include text-shadow;
 }
+#theme {
+  position: absolute;
+  top: 2.5em;
+  left: 2.5em;
+  span {
+    display: inline-block;
+    margin-right: 1em;
+  }
+  label {
+    color: #fff
+  }
+  .ui.toggle.checkbox .box:before, .ui.toggle.checkbox label:before {
+    background: rgba(0,0,0,0.3);
+  }
+}
+
+
+#app.dark-mode {
+  color: #222;
+  input[type="text"], textarea {
+    background-color : #555; 
+    color: #fff;
+  }
+  .gsc-input-box {
+    background-color: #555;
+    color: #fff
+  }
+  .gsc-input {
+    background: none !important;
+    color: #fff;
+  }
+  .ui.toggle.checkbox label,
+  .ui.toggle.checkbox input:checked~label  {
+    color: #222 !important;
+  }
+  .clock input[type="checkbox"] {
+    background-color: #222
+  }
+  .ui.toggle.checkbox .box:after, .ui.toggle.checkbox label:after {
+    background: #222;
+  }
+  .ui.toggle.checkbox input:checked~.box:before, .ui.toggle.checkbox input:checked~label:before {
+    background-color: rgba(209,209,209,0.3) !important;
+  }
+}
+
+
 </style>
