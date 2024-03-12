@@ -188,7 +188,7 @@ export default {
       const date = new Date();
       if (date.getHours() < 12) {
         this.timeOfDay = 'morning';
-      } else if (date.getHours() > 12 && date.getHours() < 18 ) {
+      } else if (date.getHours() >= 12 && date.getHours() < 18 ) {
         this.timeOfDay = 'afternoon';
       } else {
         this.timeOfDay = 'evening';
